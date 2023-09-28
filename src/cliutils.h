@@ -27,7 +27,6 @@ struct Context {
 class CliApp {
     private:
         size_t maxField = 0;
-        bool verbose = false;
 
         std::unordered_map<std::string, Command*> commands;
         std::unordered_map<std::string, std::string> shorters;
@@ -51,10 +50,7 @@ class CliApp {
         
         Command *versionCommand = new Command;
 
-        std::ostream& log = *(new std::ostream(new Discard));
-
         int run(int argc, char *argv[]);
-        void enableVerbose();
 
         bool setCommand(Command *handler);
 

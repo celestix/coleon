@@ -7,7 +7,6 @@ int testCallback(Context *ctx, int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     CliApp app;
-    app.enableVerbose();
     app.name = "Tesst";
     app.shortDescription = "A test cli";
     app.version = "v1.0.0";
