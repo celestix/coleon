@@ -1,17 +1,19 @@
 #include <iostream>
 #include <sstream>
+#include <iomanip>
+
 #include "cliutils.h"
 #include "strutils.h"
 
 #define __DEFAULT_HELP_ARGC 2
 
-Context *CliApp::newContext() {
+Context CliApp::newContext() {
     Context ctx;
     ctx.appName = name;
     ctx.appShortDescription = shortDescription;
     ctx.appDescription = description;
     ctx.appVersion = version;
-    return &ctx;
+    return ctx;
 }
 
 bool CliApp::setCommand(Command* command) {
@@ -19,8 +21,16 @@ bool CliApp::setCommand(Command* command) {
         log << "CliApp: setCommand: Command NULL" << std::endl;
         return false;
     }
-    log << "CliApp: setCommand: Added command [" << command->name << "]" << std::endl;
-    commands[command->name] = command;
+    log << "CliApp: setCommand: Added command [" << command->name << "] and description [" << command->shortDescription <<"]" << std::endl;
+    
+    std::string cmdName = command->name;
+
+    if (cmdName.length() > maxField) {
+        maxField = cmdName.length();
+    }
+
+    commands[cmdName] = command;
+    shorters[command->shorter] = cmdName;
     return true;
 }
 
@@ -34,10 +44,15 @@ void CliApp::enableVerbose() {
 }
 
 void CliApp::buildHelp() {
+    log << "Creating a string stream" << std::endl;
     std::stringstream s;
+    log << "Adding commands info to string stream" << std::endl;
     for (const auto& cmd : commands) {
-        s << "\n " << cmd.first << "\t: " << cmd.second->shortDescription;
+        log << "Adding [" << cmd.first << "] with description '" << cmd.second->shortDescription << "' to stream" << std::endl;
+        
+        s << "\n " << std::left << std::setw(maxField) << cmd.first << " : " << cmd.second->shortDescription;
     }
+    log << "Saving stream to commandsHelp as string" << std::endl;
     commandsHelp = s.str();
 }
 
@@ -63,12 +78,12 @@ int CliApp::run(int argc, char *argv[]) {
     }
 
     std::string cmd = strings::lower(argv[1]);
-    Context *ctx = newContext();
+    Context ctx = newContext();
     log << "CliApp: Created new context" << std::endl;
 
     // trim '--' from command name
     // expected: --help -> help 
-    strings::trimPrefix(cmd, "--");
+    strings::trimPrefix(&cmd, "--");
 
     // replace shorter with original command name
     // only if command entered is a shorter
@@ -76,7 +91,7 @@ int CliApp::run(int argc, char *argv[]) {
         cmd = shorters[cmd];
     }
 
-    if (cmd == "help") {
+    if (cmd == "help" || cmd == "h") {
         helpCallback(argc, argv, true);
         return checkout(0);
     }
@@ -87,9 +102,9 @@ int CliApp::run(int argc, char *argv[]) {
         helpFallback(argv, cmd);
         return checkout(0);
     }
-
+    ctx.command = commands[cmd];
     log << "CliApp: Calling command callback function..." << std::endl;
-    return checkout(ctx->command->callback(ctx, argc, argv));
+    return checkout(ctx.command->callback(&ctx, argc, argv));
 }
 
 int CliApp::checkout(int exitCode) {
@@ -104,7 +119,7 @@ void CliApp::helpCallback(int argc, char *argv[], bool general) {
     // $bin help
     if (argc <= 2) {
         if (general) {
-            std::cout << name << "\n\n" << description << "\n\n" << commandsHelp << std::endl;
+            std::cout << name << "\n\n" << description << "\n" << commandsHelp << std::endl;
         } else {
             std::cout << commandsHelp << std::endl;
         }
@@ -121,21 +136,21 @@ void CliApp::helpCallback(int argc, char *argv[], bool general) {
 }
 
 void CliApp::helpFallback(char *argv[], std::string cmd) {
-    std::cout << name << ": " << "'" << cmd << "'" << " is an invalid command.\n\n";
+    std::cout << name << ": " << "'" << cmd << "'" << " is an invalid command.\n";
     helpCallback(__DEFAULT_HELP_ARGC, argv, false);
 }
 
-int versionCallback(Context* ctx, int _, char**__) {
+int versionCallback(Context* ctx, int argc, char *argv[]) {
     std::cout << ctx->appName << " " << ctx->appVersion << std::endl;
     return 0;
 }
 
 CliApp::CliApp() {
     log << "CliApp: Created" << std::endl;
-    Command versionCmd;
-    versionCmd.name = "version";
-    versionCmd.shortDescription = "prints the current version of program.";
-    versionCmd.callback = &versionCallback;
-    versionCmd.shorter = "v";
-    setCommand(&versionCmd);
+    versionCommand->name = "version";
+    versionCommand->shortDescription = "prints the current version of program.";
+    versionCommand->description = "";
+    versionCommand->callback = &versionCallback;
+    versionCommand->shorter = "v";
+    setCommand(versionCommand);
 }

@@ -26,34 +26,37 @@ struct Context {
 
 class CliApp {
     private:
-    bool verbose;
+        size_t maxField = 0;
+        bool verbose = false;
 
-    std::unordered_map<std::string, Command*> commands;
-    std::unordered_map<std::string, std::string> shorters;
+        std::unordered_map<std::string, Command*> commands;
+        std::unordered_map<std::string, std::string> shorters;
 
-    bool exists(std::string cmdName);
-    Context* newContext();
-    
-    void buildHelp();
+        bool exists(std::string cmdName);
+        Context newContext();
+        
+        void buildHelp();
 
-    void helpCallback(int, char**, bool);
-    void helpFallback(char**, std::string);
+        void helpCallback(int, char**, bool);
+        void helpFallback(char**, std::string);
 
-    int checkout(int);
+        int checkout(int);
 
     public:
-    std::string name;
-    std::string shortDescription;
-    std::string description;
-    std::string version;
-    std::string commandsHelp;
+        std::string name;
+        std::string shortDescription;
+        std::string description;
+        std::string version;
+        std::string commandsHelp;
+        
+        Command *versionCommand = new Command;
 
-    std::ostream& log = verbose ? std::cout : *(new std::ostream(new Discard));
+        std::ostream& log = *(new std::ostream(new Discard));
 
-    int run(int argc, char *argv[]);
-    void enableVerbose();
+        int run(int argc, char *argv[]);
+        void enableVerbose();
 
-    bool setCommand(Command *handler);
+        bool setCommand(Command *handler);
 
     CliApp();
 };
