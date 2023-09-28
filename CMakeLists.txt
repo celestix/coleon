@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.10)
+project(coleon)
+file(GLOB SRC_FILES src/*.cc)
+add_executable(coleon ${SRC_FILES})
+set_target_properties(coleon PROPERTIES CXX_STANDARD 17)
+target_compile_options(coleon PRIVATE -Wall)
