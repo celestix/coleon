@@ -11,6 +11,10 @@ std::string strings::upper(std::string s) {
     return s;
 }
 
+bool strings::contains(std::string s, std::string sub) {
+    return s.find(sub) != std::string::npos;
+}
+
 bool strings::trim(std::string *s, std::string sub) {
     size_t pos = s->find(sub);
 
@@ -23,11 +27,11 @@ bool strings::trim(std::string *s, std::string sub) {
 }
 
 bool strings::hasPrefix(std::string s, std::string sub) {
-    return s.find(sub) != 0;
+    return s.find(sub) == 0;
 }
 
 bool strings::hasSuffix(std::string s, std::string sub) {
-    return s.find(sub) != s.length()-sub.length()-1;
+    return s.find(sub) == s.length()-sub.length();
 }
 
 bool strings::trimPrefix(std::string *s, std::string sub) {
@@ -43,6 +47,9 @@ bool strings::trimPrefix(std::string *s, std::string sub) {
     return true;
 }
 
+// TODO: fix this function for cases when string has multiple occurences for substring
+// Example: s: --hello-- && sub: --
+// s.find() will return the index of first occurence of substring which will produce unintended results 
 bool strings::trimSuffix(std::string *s, std::string sub) {
     // index of first element of substring in string
     size_t pos = s->find(sub);
@@ -52,7 +59,7 @@ bool strings::trimSuffix(std::string *s, std::string sub) {
     size_t subn = sub.length();
 
     // substring doesn't exist at end
-    if (pos != sn-subn-1) {
+    if (pos != sn-subn) {
         return false;
     }
     

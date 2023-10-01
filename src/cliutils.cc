@@ -85,19 +85,28 @@ int CliApp::run(int argc, char *argv[]) {
     std::string cmd = strings::lower(argv[1]);
     Context ctx = newContext();
 
-    // trim '--' from command name
-    // expected: --help -> help 
-    strings::trimPrefix(&cmd, "--");
-
-    // replace shorter with original command name
-    // only if command entered is a shorter
-    if (shorters.find(cmd) != shorters.end()) {
-        cmd = shorters[cmd];
-    }
-
-    if (cmd == "help" || cmd == "h") {
+    std::string shortCmd = cmd;
+    // trim '-' from command name
+    // expected: -help -> help 
+    strings::trimPrefix(&shortCmd, "--");
+    
+    // allow all 4 types for help command:
+    // $bin help
+    // $bin h
+    // $bin --help
+    // $bin --h
+    if (shortCmd == "help" || shortCmd == "h") {
         helpCallback(argc, argv, true);
         return checkout(0);
+    }
+
+    // only allow shorters if they start with --
+    if (strings::hasPrefix(cmd, "--")) {
+        // check if the entered command is a valid shorter and is present in shorters map
+        if (shorters.find(shortCmd) != shorters.end()) {
+            // replace shorter with original command name
+            cmd = shorters[shortCmd];
+        }
     }
 
     // fallback to help command if entered command not found

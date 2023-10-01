@@ -19,13 +19,13 @@ int main(int argc, char *argv[]) {
     // std::cout << b->value << std::endl;
 
     CliApp app;
-    // app.name = "Tesst";
-    // app.shortDescription = "A test cli";
-    // app.version = "v1.0.0";
-    // app.description = "Warp is a powerful and versatile cross-platform download manager."
-    //     "\nWith its advanced technology, Warp has the ability to accelerate"
-    //     "\nyour download speeds by up to 10 times, revolutionizing the way"
-    //     "\nyou obtain files on any operating system.";
+    app.name = "Tesst";
+    app.shortDescription = "A test cli";
+    app.version = "v1.0.0";
+    app.description = "Warp is a powerful and versatile cross-platform download manager."
+        "\nWith its advanced technology, Warp has the ability to accelerate"
+        "\nyour download speeds by up to 10 times, revolutionizing the way"
+        "\nyou obtain files on any operating system.";
     Command cmd;
     cmd.name = "test";
     cmd.shortDescription = "bleh bleh bleh";
@@ -33,8 +33,8 @@ int main(int argc, char *argv[]) {
     cmd.description = "eany mefief ef f\nfefijf ef efjefijef efjijfej";
     cmd.callback = testCallback;
     
-    StringFlag name;
-    cmd.addFlag("name", &name);
+    // StringFlag name;
+    // cmd.addFlag("name", &name);
 
     app.setCommand(&cmd);
     // Command cmd1;
@@ -51,5 +51,5 @@ int main(int argc, char *argv[]) {
     // cmd2.description = "eany mefief ef f\nfefijf ef efjefijef efjijfej";
     // cmd2.callback = testCallback;
     // app.setCommand(&cmd2);
-    // return app.run(argc, argv);
+    return app.run(argc, argv);
 }
