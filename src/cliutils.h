@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unordered_map>
-#include "bufutils.h"
+
+#include "flags.h"
 
 struct Context;
 
