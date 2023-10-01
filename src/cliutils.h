@@ -12,8 +12,12 @@ struct Command {
     std::string shortDescription;
     std::string description;
     std::string shorter;
-    
+
     __HANDLER_CALLBACK;
+    void addFlag(std::string flagName, BaseFlag* flag);
+
+    private:
+    std::unordered_map<std::string, BaseFlag*> flags;
 };
 
 struct Context {

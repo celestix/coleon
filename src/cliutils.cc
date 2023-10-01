@@ -7,6 +7,10 @@
 
 #define __DEFAULT_HELP_ARGC 2
 
+void Command::addFlag(std::string flagName, BaseFlag* flag) {
+    flags[flagName] = flag;
+}
+
 Context CliApp::newContext() {
     Context ctx;
     ctx.appName = name;
