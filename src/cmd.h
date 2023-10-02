@@ -34,7 +34,8 @@ struct Command {
     // addFlag adds a flag to the command.
     void addFlag(std::string flagName, BaseFlag* flag);
 
-    private:
+    BaseFlag* getFlag(std::string flagName);
+
     std::unordered_map<std::string, BaseFlag*> flags;
 };
 

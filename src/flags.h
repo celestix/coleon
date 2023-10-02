@@ -1,6 +1,8 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "strutils.h"
+
 // FlagType is an enum that represents the type of a flag.
 // It can be either a string, a boolean, an integer or a size_t.
 enum FlagType {
@@ -16,6 +18,9 @@ class BaseFlag {
     public:
         // type returns the type of the flag.
         virtual FlagType type() = 0;
+        virtual bool isRequired() = 0;
+
+        std::string description;
 };
 
 // BoolFlag is a class that represents a boolean flag.
@@ -27,10 +32,11 @@ class BoolFlag: public BaseFlag {
         // type returns the type of the flag.
         // In this case, it returns FlagBool.
         FlagType type();
+
+        bool isRequired();
+
         // value of the flag.
         bool value;
-        // whether this flag is required or not.
-        bool required;
 
         BoolFlag();
         BoolFlag(bool);
@@ -45,6 +51,9 @@ class StringFlag: public BaseFlag {
         // type returns the type of the flag.
         // In this case, it returns FlagString.
         FlagType type();
+
+        bool isRequired();
+
         // value of the flag.
         std::string value;
         // whether this flag is required or not.
@@ -63,6 +72,9 @@ class IntFlag: public BaseFlag {
         // type returns the type of the flag.
         // In this case, it returns FlagInt.
         FlagType type();
+
+        bool isRequired();
+
         // value of the flag.
         int value;
         // whether this flag is required or not.
@@ -80,6 +92,9 @@ class SizeTFlag: public BaseFlag {
     public:
         // type returns the type of the flag.
         FlagType type();
+
+        bool isRequired();
+
         // value of the flag.
         size_t value;
         // whether this flag is required or not.

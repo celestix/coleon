@@ -6,6 +6,96 @@
 
 #define __DEFAULT_HELP_ARGC 2
 
+static int checkArguments(int i, int argc, char* cmdName) {
+    if (i+1 <= argc-1) {
+        return 0;
+    }
+    std::cout << "Invalid number of arguments for supplied for the command '" << cmdName << "'," << std::endl;
+    std::cout << "Expected " << i << " arguments, but found " << argc-2 << "." << std::endl;
+    return 1;
+}
+
+static int parseCmdFlags(int argc, char *argv[], std::unordered_map<std::string, BaseFlag*> flags) {
+    // start from 2th index for flags
+    for (int i = 2; i < argc; i++) {
+        std::string flagName = argv[i];
+
+        if (!strings::hasPrefix(flagName, "--")) {
+            continue;
+        }
+
+        strings::trimPrefix(&flagName, "--");
+
+        if (flags.find(flagName) == flags.end()) {
+            // unexpected flag
+            std::cout << "Found unexpected flag: --" << flagName << std::endl; 
+            return 1;
+        }
+
+        BaseFlag* flag = flags[flagName];
+
+        FlagType ftype = flag->type();
+        switch (ftype) {
+            case FlagBool:
+            {
+                BoolFlag* _flag = static_cast<BoolFlag*>(flag);
+                _flag->value = true;
+                break;
+            }
+            case FlagString:
+            {
+                StringFlag* _flag = static_cast<StringFlag*>(flag);
+
+                if (int errCode = checkArguments(i, argc, argv[1]); errCode != 0) {
+                    return errCode;
+                };
+
+                _flag->value = argv[i + 1];
+                break;
+            }
+            case FlagInt:
+            {
+                IntFlag* _flag = static_cast<IntFlag*>(flag);
+               
+                if (int errCode = checkArguments(i, argc, argv[1]); errCode != 0) {
+                    return errCode;
+                };
+
+                _flag->value = std::atoi(argv[i + 1]);
+                break;
+            }
+            case FlagSizeT:
+            {
+                SizeTFlag* _flag = static_cast<SizeTFlag*>(flag);
+                
+                if (int errCode = checkArguments(i, argc, argv[1]); errCode != 0) {
+                    return errCode;
+                };
+
+                _flag->value = std::atol(argv[i + 1]);
+                break;
+            }
+            default:
+            // unknown flag type
+            std::cout << "Found unknown flag type: " << flag->type() << std::endl; 
+            return 1;
+        };
+        // remove flag from map
+        flags.erase(flagName);
+    }
+
+    for (const auto &pair : flags) {
+        std::string flagName = pair.first;
+        BaseFlag* flag = pair.second;
+        if (flag == NULL || !flag->isRequired()) {
+            continue;
+        }
+        std::cout << "Missing required flag '--" << flagName << "' for the command '"  << argv[1] << "'." << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
 Context CliApp::newContext() {
     Context ctx;
     ctx.appName = name;
@@ -35,29 +125,41 @@ bool CliApp::exists(std::string cmdName) {
     return (commands.find(cmdName) != commands.end());
 }
 
-void CliApp::helpCallback(int argc, char *argv[], bool general) {
+void CliApp::helpCallback(int argc, std::string cmdName, bool general) {
     // $bin help
     if (argc <= 2) {
         if (general) {
             std::cout << name << "\n\n" << description << "\n" << commandsHelp << std::endl;
-        } else {
-            std::cout << commandsHelp << std::endl;
         }
+        std::cout << commandsHelp << std::endl;
         return;
     }
     // $bin help $cmdName
-    std::string cmdName = strings::lower(argv[2]);
     if (!exists(cmdName)) {
-        helpFallback(argv, cmdName);
+        helpFallback(cmdName);
         return;
     }
     Command *cmd = commands[cmdName];
-    std::cout << "Usage: " << argv[0] << " " << cmd->name << " <options>\n\n" << cmd->description << std::endl;
+    if (general) {
+        std::cout << "Command: " << cmd->name;
+    }
+    std::cout << "\nUsage: " << execName << " " << cmd->name << " options...\n";
+
+    if (cmd->shortDescription != "") {
+        std::cout << "\n" << cmd->shortDescription;
+    }
+    if (cmd->shortDescription != "" && cmd->description != "") {
+        std::cout << "\n";
+    }
+    if (cmd->description != "") {
+        std::cout << "\n" << cmd->description;
+    }
+    std::cout << std::endl;
 }
 
-void CliApp::helpFallback(char *argv[], std::string cmd) {
-    std::cout << name << ": " << "'" << cmd << "'" << " is an invalid command.\n";
-    helpCallback(__DEFAULT_HELP_ARGC, argv, false);
+void CliApp::helpFallback(std::string cmdName) {
+    std::cout << name << ": " << "'" << cmdName << "'" << " is an invalid command.\n";
+    helpCallback(__DEFAULT_HELP_ARGC, cmdName, false);
 }
 
 void CliApp::buildHelp() {
@@ -73,14 +175,14 @@ int CliApp::run(int argc, char *argv[]) {
     buildHelp();
 
     if (argc == 1) {
-        helpCallback(argc, argv, true);
+        helpCallback(argc, "", true);
         return checkout(0);
     }
 
-    std::string cmd = strings::lower(argv[1]);
+    std::string cmdName = strings::lower(argv[1]);
     Context ctx = newContext();
 
-    std::string shortCmd = cmd;
+    std::string shortCmd = cmdName;
     // trim '-' from command name
     // expected: -help -> help 
     strings::trimPrefix(&shortCmd, "--");
@@ -91,25 +193,32 @@ int CliApp::run(int argc, char *argv[]) {
     // $bin --help
     // $bin --h
     if (shortCmd == "help" || shortCmd == "h") {
-        helpCallback(argc, argv, true);
+        helpCallback(argc, strings::lower(argv[2]), true);
         return checkout(0);
     }
 
     // only allow shorters if they start with --
-    if (strings::hasPrefix(cmd, "--")) {
+    if (strings::hasPrefix(cmdName, "--")) {
         // check if the entered command is a valid shorter and is present in shorters map
         if (shorters.find(shortCmd) != shorters.end()) {
             // replace shorter with original command name
-            cmd = shorters[shortCmd];
+            cmdName = shorters[shortCmd];
         }
     }
 
     // fallback to help command if entered command not found
-    if (!exists(cmd)) {
-        helpFallback(argv, cmd);
+    if (!exists(cmdName)) {
+        helpFallback(cmdName);
         return checkout(0);
     }
-    ctx.command = commands[cmd];
+
+    ctx.command = commands[cmdName];
+
+    if (int errCode = parseCmdFlags(argc, argv, ctx.command->flags); errCode != 0) {
+        helpCallback(3, cmdName, false);
+        return checkout(errCode);
+    };
+
     return checkout(ctx.command->callback(&ctx, argc, argv));
 }
 

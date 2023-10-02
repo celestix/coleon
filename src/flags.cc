@@ -6,6 +6,10 @@ FlagType BoolFlag::type() {
     return FlagBool;
 }
 
+bool BoolFlag::isRequired() {
+    return false;
+}
+
 BoolFlag::BoolFlag() {
     value = false;
 }
@@ -16,6 +20,10 @@ BoolFlag::BoolFlag(bool defaultValue) {
 
 FlagType StringFlag::type() {
     return FlagString;
+}
+
+bool StringFlag::isRequired() {
+    return required;
 }
 
 StringFlag::StringFlag() {
@@ -30,6 +38,10 @@ FlagType IntFlag::type() {
     return FlagInt;
 }
 
+bool IntFlag::isRequired() {
+    return required;
+}
+
 IntFlag::IntFlag() {
     value = 0;
 }
@@ -40,6 +52,10 @@ IntFlag::IntFlag(int defaultValue) {
 
 FlagType SizeTFlag::type() {
     return FlagSizeT;
+}
+
+bool SizeTFlag::isRequired() {
+    return required;
 }
 
 SizeTFlag::SizeTFlag() {

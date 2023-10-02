@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
 #include "cmd.h"
 
@@ -13,14 +14,14 @@ class CliApp {
 
         std::unordered_map<std::string, Command*> commands;
         std::unordered_map<std::string, std::string> shorters;
-
+    
         bool exists(std::string cmdName);
         Context newContext();
         
         void buildHelp();
 
-        void helpCallback(int, char**, bool);
-        void helpFallback(char**, std::string);
+        void helpCallback(int, std::string, bool);
+        void helpFallback(std::string);
 
         int checkout(int);
 
@@ -36,6 +37,10 @@ class CliApp {
 
         // The version of the application.
         std::string version;
+
+        // Executable name of the application.
+        // 0th argument is used as execName by default.
+        std::string execName;
 
         // commandsHelp is a string that contains the help for all the commands.
         // It is built automatically by the library when CliApp::run is called
