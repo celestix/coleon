@@ -132,6 +132,9 @@ void CliApp::helpCallback(int argc, std::string cmdName, bool general) {
             std::cout << name << "\n\n" << description << "\n";
         }
         std::cout << commandsHelp << std::endl;
+        if (general && footer != "") {
+            std::cout << "\n" << footer << std::endl;
+        }
         return;
     }
     // $bin help $cmdName

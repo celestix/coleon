@@ -38,6 +38,9 @@ class CliApp {
         // The version of the application.
         std::string version;
 
+        // Footer of the application. (Optional)
+        std::string footer;
+
         // Executable name of the application.
         // 0th argument is used as execName by default.
         std::string execName;
