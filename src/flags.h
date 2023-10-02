@@ -1,3 +1,5 @@
+#include <iostream>
+
 enum FlagType {
     FlagString,
     FlagBool,
