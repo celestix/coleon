@@ -1,15 +1,10 @@
-#include <iostream>
 #include <sstream>
 #include <iomanip>
 
-#include "cliutils.h"
+#include "app.h"
 #include "strutils.h"
 
 #define __DEFAULT_HELP_ARGC 2
-
-void Command::addFlag(std::string flagName, BaseFlag* flag) {
-    flags[flagName] = flag;
-}
 
 Context CliApp::newContext() {
     Context ctx;
