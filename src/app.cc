@@ -129,7 +129,7 @@ void CliApp::helpCallback(int argc, std::string cmdName, bool general) {
     // $bin help
     if (argc <= 2) {
         if (general) {
-            std::cout << name << "\n\n" << description << "\n" << commandsHelp << std::endl;
+            std::cout << name << "\n\n" << description << "\n";
         }
         std::cout << commandsHelp << std::endl;
         return;
@@ -154,6 +154,20 @@ void CliApp::helpCallback(int argc, std::string cmdName, bool general) {
     if (cmd->description != "") {
         std::cout << "\n" << cmd->description;
     }
+    if (cmd->flags.empty()) {
+        std::cout << std::endl;
+        return;
+    }
+    int n = 0;
+    std::cout << "\n\n" << "Supported flags:";
+    for (const auto &pair: cmd->flags) {
+        n++;
+        std::cout << "\n " << n << ".) --" << std::left << std::setw(cmd->maxField) << pair.first << " : " << pair.second->description;
+        if (!pair.second->isRequired()) {
+            continue;
+        }
+        std::cout << " (Required)";
+    }
     std::cout << std::endl;
 }
 
@@ -171,6 +185,9 @@ void CliApp::buildHelp() {
 }
 
 int CliApp::run(int argc, char *argv[]) {
+    if (execName == "") {
+        execName = argv[0];
+    }
     // build help description
     buildHelp();
 
@@ -193,7 +210,11 @@ int CliApp::run(int argc, char *argv[]) {
     // $bin --help
     // $bin --h
     if (shortCmd == "help" || shortCmd == "h") {
-        helpCallback(argc, strings::lower(argv[2]), true);
+        std::string subCmdName = "";
+        if (argc > 2) {
+            subCmdName = argv[2];
+        }
+        helpCallback(argc, strings::lower(subCmdName), true);
         return checkout(0);
     }
 

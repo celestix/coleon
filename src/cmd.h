@@ -37,6 +37,7 @@ struct Command {
     BaseFlag* getFlag(std::string flagName);
 
     std::unordered_map<std::string, BaseFlag*> flags;
+    int maxField = 0;
 };
 
 // Context is a struct that represents the context of the application.
