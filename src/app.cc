@@ -117,7 +117,7 @@ int CliApp::checkout(int exitCode) {
     return exitCode;
 }
 
-int versionCallback(Context* ctx, int argc, char *argv[]) {
+static int versionCallback(Context* ctx, int argc, char *argv[]) {
     std::cout << ctx->appName << " " << ctx->appVersion << std::endl;
     return 0;
 }
