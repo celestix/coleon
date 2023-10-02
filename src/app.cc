@@ -15,7 +15,7 @@ Context CliApp::newContext() {
     return ctx;
 }
 
-bool CliApp::setCommand(Command* command) {
+bool CliApp::addCommand(Command* command) {
     if (command == NULL) {
         return false;
     }
@@ -128,5 +128,5 @@ CliApp::CliApp() {
     versionCommand->description = "";
     versionCommand->callback = &versionCallback;
     versionCommand->shorter = "v";
-    setCommand(versionCommand);
+    addCommand(versionCommand);
 }
