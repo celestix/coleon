@@ -57,7 +57,7 @@ class StringFlag: public BaseFlag {
         // value of the flag.
         std::string value;
         // whether this flag is required or not.
-        bool required;
+        bool required = false;
 
         StringFlag();
         StringFlag(std::string);
@@ -78,7 +78,7 @@ class IntFlag: public BaseFlag {
         // value of the flag.
         int value;
         // whether this flag is required or not.
-        bool required;
+        bool required = false;
 
         IntFlag();
         IntFlag(int);
@@ -98,7 +98,7 @@ class SizeTFlag: public BaseFlag {
         // value of the flag.
         size_t value;
         // whether this flag is required or not.
-        bool required;
+        bool required = false;
         // In this case, it returns FlagSizeT.
 
         SizeTFlag();
