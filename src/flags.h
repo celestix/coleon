@@ -39,7 +39,8 @@ class BoolFlag: public BaseFlag {
         bool value;
 
         BoolFlag();
-        BoolFlag(bool);
+        BoolFlag(bool defaultValue);
+        BoolFlag(bool defaultValue, std::string description);
 };
 
 // StringFlag is a class that represents a string flag.
@@ -60,7 +61,9 @@ class StringFlag: public BaseFlag {
         bool required = false;
 
         StringFlag();
-        StringFlag(std::string);
+        StringFlag(std::string defaultValue);
+        StringFlag(std::string defaultValue, std::string description);
+        StringFlag(std::string defaultValue, std::string description, bool required);
 };
 
 // IntFlag is a class that represents an integer flag.
@@ -81,7 +84,9 @@ class IntFlag: public BaseFlag {
         bool required = false;
 
         IntFlag();
-        IntFlag(int);
+        IntFlag(int defaultValue);
+        IntFlag(int defaultValue, std::string description);
+        IntFlag(int defaultValue, std::string description, bool required);
 };
 
 // SizeTFlag is a class that represents a size_t flag.
@@ -102,5 +107,7 @@ class SizeTFlag: public BaseFlag {
         // In this case, it returns FlagSizeT.
 
         SizeTFlag();
-        SizeTFlag(size_t);
+        SizeTFlag(size_t defaultValue);
+        SizeTFlag(size_t defaultValue, std::string description);
+        SizeTFlag(size_t defaultValue, std::string description, bool required);
 };

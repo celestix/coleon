@@ -129,9 +129,18 @@ void CliApp::helpCallback(int argc, std::string cmdName, bool general) {
     // $bin help
     if (argc <= 2) {
         if (general) {
-            std::cout << name << "\n\n" << description << "\n";
+            if (shortDescription != "") {
+                std::cout << shortDescription;
+            } else {
+                std::cout << name;
+            }
+            if (description != "") {
+                std::cout << "\n\n" << description;
+            }
+            std::cout << "\n";
         }
         std::cout << commandsHelp << std::endl;
+        std::cout << "\nUse \"" << execName << " help <command>\" for more information about a command.\n\n";
         if (general && footer != "") {
             std::cout << "\n" << footer << std::endl;
         }
@@ -176,11 +185,13 @@ void CliApp::helpCallback(int argc, std::string cmdName, bool general) {
 
 void CliApp::helpFallback(std::string cmdName) {
     std::cout << name << ": " << "'" << cmdName << "'" << " is an invalid command.\n";
-    helpCallback(__DEFAULT_HELP_ARGC, cmdName, false);
+    std::cout << "Run '" << execName << " help' for usage.\n";
+    // helpCallback(__DEFAULT_HELP_ARGC, cmdName, false);
 }
 
 void CliApp::buildHelp() {
     std::stringstream s;
+    s << "\nCommands:";
     for (const auto& cmd : commands) {
         s << "\n " << std::left << std::setw(maxField) << cmd.first << " : " << cmd.second->shortDescription;
     }
@@ -205,14 +216,14 @@ int CliApp::run(int argc, char *argv[]) {
     std::string shortCmd = cmdName;
     // trim '-' from command name
     // expected: -help -> help 
-    strings::trimPrefix(&shortCmd, "--");
+    strings::trimPrefix(&shortCmd, "-");
     
     // allow all 4 types for help command:
     // $bin help
     // $bin h
     // $bin --help
     // $bin --h
-    if (shortCmd == "help" || shortCmd == "h") {
+    if (shortCmd == "help" || shortCmd == "h" || shortCmd == "-help" || shortCmd == "-h") {
         std::string subCmdName = "";
         if (argc > 2) {
             subCmdName = argv[2];
@@ -221,8 +232,8 @@ int CliApp::run(int argc, char *argv[]) {
         return checkout(0);
     }
 
-    // only allow shorters if they start with --
-    if (strings::hasPrefix(cmdName, "--")) {
+    // only allow shorters if they start with -
+    if (strings::hasPrefix(cmdName, "-")) {
         // check if the entered command is a valid shorter and is present in shorters map
         if (shorters.find(shortCmd) != shorters.end()) {
             // replace shorter with original command name
